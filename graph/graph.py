@@ -1,6 +1,6 @@
 class Vertice:
-    def __init__(self):
-        self._repr = ''
+    def __init__(self, label):
+        self.label = label
         self._cabeca_lista_adjacencia = None
 
 
@@ -12,15 +12,33 @@ class Adjacencia:
 
 
 class Graph:
-    def __init__(self, total_vertices):
-        self._total_vertices = total_vertices
+    def __init__(self):
+        self._total_vertices = 0
         self._total_arestas = 0
-        self._adjacencias = [Vertice() for _ in range(self._total_vertices)]
+        self._adjacencias = {}
+
+    def add_adjacencia(self, label):
+        if label not in self._adjacencias.keys():
+            self._adjacencias[label] = Vertice(label)
+            self._total_vertices += 1
 
 
-def cria_grafo(total_vertices):
-    grafo = Graph(total_vertices)
+def cria_grafo():
+    grafo = Graph()
 
+    labels = []
+    f = open('files/file')
+    lines = f.readlines()
+    for line in lines:
+        line_items = line.replace('\n', '').split(',')
+
+        if line_items[0] not in labels:
+            grafo.add_adjacencia(line_items[0])
+        
+        if line_items[1] not in labels:
+            grafo.add_adjacencia(line_items[1])
+
+        cria_aresta(grafo, line_items[0], line_items[1], int(line_items[2]))
 
     return grafo
 
@@ -33,10 +51,6 @@ def cria_adjacencia(vertice, peso):
 
 def cria_aresta(grafo, vertice_inicial, vertice_final, peso):
     if not grafo:
-        return False
-    if vertice_final < 0 or vertice_final >= grafo._total_vertices:
-        return False
-    if vertice_inicial < 0 or vertice_inicial >= grafo._total_vertices:
         return False
     
     nova_adjacencia = cria_adjacencia(vertice_final, peso)
@@ -67,9 +81,9 @@ def imprime_grafo(grafo):
 
 
 def inicializa_grafo(grafo, distancias, predecessores, vertice_inicial):
-    for _ in range(grafo._total_vertices):
-        distancias.append(float("inf"))
-        predecessores.append(-1)
+    for i in grafo._adjacencias.keys():
+        distancias[i] = float("inf")
+        predecessores[i] = -1
 
     distancias[vertice_inicial] = 0
 
@@ -86,44 +100,39 @@ def relaxa_aresta(grafo, distancias, predecessores, vertice_inicial, vertice_fin
             predecessores[vertice_final] = vertice_inicial
 
 
-def existe_aberto(grafo, abertos):
-    for i in range(grafo._total_vertices):
-        if abertos[i]:
-            return True
+def existe_aberto(abertos):
+    if True in abertos.values():
+        return True
 
     return False
 
 def menor_distancia(grafo, abertos, distancias):
-    aberto_index = None
-    for i in range(grafo._total_vertices):
-        if abertos[i]:
-            aberto_index = i
-            break
 
-    if aberto_index == grafo._total_vertices:
-        return -1
+    menor_distancia = float("inf")
+    menor_distancia_vertice = None
+    for k, v in abertos.items():
+        if v:
+            if distancias[k] < menor_distancia:
+                menor_distancia = distancias[k]
+                menor_distancia_vertice = k
 
-    menor = i
-
-    for i in range(menor+1, grafo._total_vertices):
-        if abertos[i] and distancias[menor] > distancias[i]:
-            menor = i
-
-    return menor
+    return menor_distancia_vertice
 
 def dirjkstra(grafo, vertice_inicial):
-    distancias = []
-    predecessores = []
+    distancias = {}
+    predecessores = {}
     inicializa_grafo(grafo, distancias, predecessores, vertice_inicial)
-    abertos = []
+    abertos = {}
 
-    for i in range(grafo._total_vertices):
-        abertos.append(True)
+    for i in grafo._adjacencias.keys():
+        abertos[i] = True
 
-    while existe_aberto(g, abertos):
-        vertice_inicial = menor_distancia(g, abertos, distancias)
+    while existe_aberto(abertos):
+        vertice_inicial = menor_distancia(grafo, abertos, distancias)
+        if not vertice_inicial:
+            break
+
         abertos[vertice_inicial] = False
-
         adjacencia = grafo._adjacencias[vertice_inicial]._cabeca_lista_adjacencia
         while adjacencia:
             relaxa_aresta(grafo, distancias, predecessores, vertice_inicial, adjacencia._vertice)
@@ -133,16 +142,10 @@ def dirjkstra(grafo, vertice_inicial):
 
 
 if __name__ == "__main__":
-    g = cria_grafo(5)
-    cria_aresta(g, 0, 1, 10)
-    cria_aresta(g, 0, 2, 20)
-    cria_aresta(g, 0, 3, 75)
-    cria_aresta(g, 0, 4, 56)
-    cria_aresta(g, 1, 2, 5)
-    cria_aresta(g, 2, 4, 20)
-    cria_aresta(g, 4, 3, 5)
+    grafo = cria_grafo()
 
-    result = dirjkstra(g, 0)
+    vertice_inicial = 'ORL'
+    result = dirjkstra(grafo, vertice_inicial)
 
-    for i in range(g._total_vertices):
-        print("D(v0 -> v{}) = {}\n".format(i, result[i]))
+    print(result)
+

@@ -1,164 +1,220 @@
-class Vertice:
+class Node:
     def __init__(self, label):
         self.label = label
-        self._cabeca_lista_adjacencia = None
-        self._anterior = None
+        self.head_adjacency_list = None
+        self.previous = None
 
 
-class Adjacencia:
-    def __init__(self, vertice, peso):
-        self._vertice = vertice
-        self._peso = peso
-        self._proximo = None
+class Adjacency:
+    def __init__(self, node, weight):
+        self.node = node
+        self.weight = weight
+        self.next = None
 
 
 class Graph:
     def __init__(self):
-        self._total_vertices = 0
-        self._total_arestas = 0
-        self._adjacencias = {}
+        self.total_nodes = 0
+        self.total_edges = 0
+        self.nodes = {}
 
-    def add_adjacencia(self, label):
-        if label not in self._adjacencias.keys():
-            self._adjacencias[label] = Vertice(label)
-            self._total_vertices += 1
+    def add_node(self, label):
+        """[Add node to the Graph]
 
-def cria_grafo():
-    grafo = Graph()
+        Args:
+            label ([str]): [label of new node]
+        """        
+        if label not in self.nodes.keys():
+            self.nodes[label] = Node(label)
+            self.total_nodes += 1
+
+
+def create_graph(file_path):
+    """[Create a graph and fill it with data of file]
+
+    Args:
+        file_path ([str]): [path from file]
+
+    Returns:
+        [Graph]: [object of Graph]
+    """    
+    graph = Graph()
 
     labels = []
-    f = open('files/input-routes.csv')
+    f = open(file_path)
     lines = f.readlines()
+    f.close()
+
     for line in lines:
         line_items = line.replace('\n', '').split(',')
 
         if line_items[0] not in labels:
-            grafo.add_adjacencia(line_items[0])
+            graph.add_node(line_items[0])
         
         if line_items[1] not in labels:
-            grafo.add_adjacencia(line_items[1])
+            graph.add_node(line_items[1])
 
-        cria_aresta(grafo, line_items[0], line_items[1], int(line_items[2]))
+        create_edge(graph, line_items[0], line_items[1], int(line_items[2]))
 
-    return grafo
-
-
-def cria_adjacencia(vertice, peso):
-    adjacencia = Adjacencia(vertice, peso)
-
-    return adjacencia
+    return graph
 
 
-def cria_aresta(grafo, vertice_inicial, vertice_final, peso):
-    if not grafo:
+def create_edge(graph, initial_node, final_node, weight):
+    """[Create edge between two nodes]
+
+    Args:
+        graph ([Graph]): object of Graph
+        initial_node ([str]): [label of initial node]
+        final_node ([str]): [label of final node]
+        weight ([type]): [weight of edge]
+
+    Returns:
+        [bool]: [True if edge was created, False if edge was not created]
+    """    
+    if not graph:
         return False
     
-    nova_adjacencia = cria_adjacencia(vertice_final, peso)
-    nova_adjacencia._proximo = grafo._adjacencias[vertice_inicial]._cabeca_lista_adjacencia
+    new_adjacency = Adjacency(final_node, weight)
 
-    grafo._adjacencias[vertice_inicial]._cabeca_lista_adjacencia = nova_adjacencia
-    grafo._total_arestas += 1
+    new_adjacency.next = graph.nodes[initial_node].head_adjacency_list
+
+    graph.nodes[initial_node].head_adjacency_list = new_adjacency
+    graph.total_edges += 1
 
     return True
 
 
-def imprime_grafo(grafo):
-    print("Vertices: {} \nArestas: {}\n\n".format(
-        grafo._total_vertices, grafo._total_arestas))
+def initialize_graph(graph, distances, predecessors, initial_node):
+    """[Define default values]
 
-    for i in range(grafo._total_vertices):
-        adjacencia = grafo._adjacencias[i]._cabeca_lista_adjacencia
-        
-        texto = ["V{}: ".format(i)]
+    Args:
+        graph ([Graph]): object of Graph
+        distances ([dict]): [dict containing node label and information about its current lowest distance, example {'GRU': 0, 'SCL': 20}]
+        predecessors ([dict]): [dict where keys are node labels and each value is label of current previous node]
+        initial_node ([str]): [label of initial node]
+    """    
+    for i in graph.nodes.keys():
+        distances[i] = float("inf")
+        predecessors[i] = -1
 
-        while(adjacencia):
-            texto.append("-> V{}({}) ".format(adjacencia._vertice, adjacencia._peso))
-
-            adjacencia = adjacencia._proximo
-
-        texto.append("\n")
-        print(''.join(texto))
+    distances[initial_node] = 0
 
 
-def inicializa_grafo(grafo, distancias, predecessores, vertice_inicial):
-    for i in grafo._adjacencias.keys():
-        distancias[i] = float("inf")
-        predecessores[i] = -1
+def relax_edge(graph, distances, predecessors, initial_node, final_node):
+    """[Change distance value, if distance between two node is smallest than previous distance]
 
-    distancias[vertice_inicial] = 0
+    Args:
+        graph ([Graph]): object of Graph
+        distances ([dict]): [dict containing node label and information about its current lowest distance, example {'GRU': 0, 'SCL': 20}]
+        predecessors ([dict]): [dict where keys are node labels and each value is label of current previous node]
+        initial_node ([str]): label of initial node
+        final_node ([str]): label of initial
+    """    
+    adjacency = graph.nodes[initial_node].head_adjacency_list
+
+    while(adjacency and adjacency.node != final_node):
+        adjacency = adjacency.next
+
+    if adjacency:
+        if distances[final_node] > distances[initial_node] + adjacency.weight:
+            distances[final_node] = distances[initial_node] + adjacency.weight
+            predecessors[final_node] = initial_node
+
+            graph.nodes[final_node].previous = initial_node
 
 
-def relaxa_aresta(grafo, distancias, predecessores, vertice_inicial, vertice_final):
-    adjacencia = grafo._adjacencias[vertice_inicial]._cabeca_lista_adjacencia
+def open_exists(open_node):
+    """[Check if exists some open node]
 
-    while(adjacencia and adjacencia._vertice != vertice_final):
-        adjacencia = adjacencia._proximo
+    Args:
+        open_node ([dict]): [dict containing node label and information if it is open or close, example {'GRU': True, 'SCL': False}]
 
-    if adjacencia:
-        if distancias[vertice_final] > distancias[vertice_inicial] + adjacencia._peso:
-            distancias[vertice_final] = distancias[vertice_inicial] + adjacencia._peso
-            predecessores[vertice_final] = vertice_inicial
-
-            grafo._adjacencias[vertice_final]._anterior = vertice_inicial
-
-def existe_aberto(abertos):
-    if True in abertos.values():
+    Returns:
+        [bool]: [True if exists some item from open_node checked as True, False doesn't exist any item from open_node checked as True]
+    """    
+    if True in open_node.values():
         return True
 
     return False
 
-def menor_distancia(grafo, abertos, distancias):
-    menor_distancia = float("inf")
-    menor_distancia_vertice = None
-    for k, v in abertos.items():
+
+def smallest_distancee(graph, open_node, distances):
+    """[Finds the node with the smallest distance between the open nodes]
+
+    Args:
+        graph ([Graph]): object of Graph
+        open_node ([dict]): [dict containing node label and information if it is open or close, example {'GRU': True, 'SCL': False}]
+        distances ([type]): [dict containing node label and information about its current lowest distance, example {'GRU': 0, 'SCL': 20}]
+
+    Returns:
+        [str]: [label of node with the smallest distance]
+    """    
+    smallest_distancee_value = float("inf")
+    smallest_distancee_node = None
+
+    for k, v in open_node.items():
         if v:
-            if distancias[k] < menor_distancia:
-                menor_distancia = distancias[k]
-                menor_distancia_vertice = k
+            if distances[k] < smallest_distancee_value:
+                smallest_distancee_value = distances[k]
+                smallest_distancee_node = k
 
-    return menor_distancia_vertice
+    return smallest_distancee_node
 
-def dirjkstra(grafo, vertice_inicial):
-    distancias = {}
-    predecessores = {}
-    inicializa_grafo(grafo, distancias, predecessores, vertice_inicial)
-    abertos = {}
 
-    for i in grafo._adjacencias.keys():
-        abertos[i] = True
+def dirjkstra(graph, initial_node):
+    """ Finds the lower path between an initial node and all other node of graph
 
-    while existe_aberto(abertos):
-        vertice_inicial = menor_distancia(grafo, abertos, distancias)
-        if not vertice_inicial:
+    Args:
+        graph ([Graph]): object of Graph
+        initial_node ([str]): label of node where search will begin
+
+    Returns:
+        [dict]: [dict which keys are node labels and the values are its distaces from initial_node, example {'GRU': 0, 'SCL': 20}]
+    """    
+    distances = {}
+    predecessors = {}
+    initialize_graph(graph, distances, predecessors, initial_node)
+    open_node = {}
+
+    for i in graph.nodes.keys():
+        open_node[i] = True
+
+    while open_exists(open_node):
+        initial_node = smallest_distancee(graph, open_node, distances)
+        if not initial_node:
             break
 
-        abertos[vertice_inicial] = False
-        adjacencia = grafo._adjacencias[vertice_inicial]._cabeca_lista_adjacencia
-        while adjacencia:
-            relaxa_aresta(grafo, distancias, predecessores, vertice_inicial, adjacencia._vertice)
-            adjacencia = adjacencia._proximo
+        open_node[initial_node] = False
+        adjacency = graph.nodes[initial_node].head_adjacency_list
+        while adjacency:
+            relax_edge(graph, distances, predecessors, initial_node, adjacency.node)
+            adjacency = adjacency.next
 
-    return distancias
+    return distances
 
 
-def get_best_route_price(vertice_inicial, vertice_final):
-    grafo = cria_grafo()
-    result = dirjkstra(grafo, vertice_inicial)
+def get_best_route_price(graph, initial_node, final_node):
+    """ Get best route between two node in a Graph
 
-    route_value = result[vertice_final]
+    Args:
+        graph ([Graph]): object of Graph
+        initial_node ([str]): label of node where search will begin
+        final_node ([str]): label of node where search will end
+
+    Returns:
+        [str]: path from initial to final node, formatted as expected, if it exists
+    """
+    result = dirjkstra(graph, initial_node)
+
+    route_value = result[final_node]
 
     route_path = []
-    last_path = vertice_final
+    last_path = final_node
     while last_path:
         route_path.append(last_path)
-        last_path  = grafo._adjacencias[last_path]._anterior
+        last_path  = graph.nodes[last_path].previous
 
     route_path = ' - '.join(route_path[::-1])
     route_path += ' > ${}'.format(route_value)
 
     return route_path
-
-if __name__ == "__main__":
-    pass
-
-

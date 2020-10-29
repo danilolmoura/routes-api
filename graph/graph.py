@@ -2,6 +2,7 @@ class Vertice:
     def __init__(self, label):
         self.label = label
         self._cabeca_lista_adjacencia = None
+        self._anterior = None
 
 
 class Adjacencia:
@@ -21,7 +22,6 @@ class Graph:
         if label not in self._adjacencias.keys():
             self._adjacencias[label] = Vertice(label)
             self._total_vertices += 1
-
 
 def cria_grafo():
     grafo = Graph()
@@ -99,6 +99,7 @@ def relaxa_aresta(grafo, distancias, predecessores, vertice_inicial, vertice_fin
             distancias[vertice_final] = distancias[vertice_inicial] + adjacencia._peso
             predecessores[vertice_final] = vertice_inicial
 
+            grafo._adjacencias[vertice_final]._anterior = vertice_inicial
 
 def existe_aberto(abertos):
     if True in abertos.values():
@@ -107,7 +108,6 @@ def existe_aberto(abertos):
     return False
 
 def menor_distancia(grafo, abertos, distancias):
-
     menor_distancia = float("inf")
     menor_distancia_vertice = None
     for k, v in abertos.items():
@@ -145,8 +145,18 @@ def get_best_route_price(vertice_inicial, vertice_final):
     grafo = cria_grafo()
     result = dirjkstra(grafo, vertice_inicial)
 
-    return result
+    route_value = result[vertice_final]
 
+    route_path = []
+    last_path = vertice_final
+    while last_path:
+        route_path.append(last_path)
+        last_path  = grafo._adjacencias[last_path]._anterior
+
+    route_path = ' - '.join(route_path[::-1])
+    route_path += ' > ${}'.format(route_value)
+
+    return route_path
 
 if __name__ == "__main__":
     pass

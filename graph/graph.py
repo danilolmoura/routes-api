@@ -27,7 +27,7 @@ def cria_grafo():
     grafo = Graph()
 
     labels = []
-    f = open('files/file')
+    f = open('files/input-routes.csv')
     lines = f.readlines()
     for line in lines:
         line_items = line.replace('\n', '').split(',')
@@ -141,11 +141,14 @@ def dirjkstra(grafo, vertice_inicial):
     return distancias
 
 
-if __name__ == "__main__":
+def get_best_route_price(vertice_inicial, vertice_final):
     grafo = cria_grafo()
-
-    vertice_inicial = 'ORL'
     result = dirjkstra(grafo, vertice_inicial)
 
-    print(result)
+    return result
+
+
+if __name__ == "__main__":
+    pass
+
 

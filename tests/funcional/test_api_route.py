@@ -17,9 +17,8 @@ class TestRouteResource():
                 'final_position': 'GRU'
             }
 
-            f = open('files/input-routes.csv')
-            lines = f.readlines()
-            f.close()
+            with open(FILE_PATH, 'r') as f:
+                lines = f.readlines()
 
             total_lines = len(lines)
 
@@ -38,7 +37,52 @@ class TestRouteResource():
 
             assert last_line == '{},{},{}'.format(data['initial_position'], data['final_position'], data['weight'])
 
+        def should_return_400_if_initial_position_is_not_str(test_client):
+            data = {
+                'weight': 30,
+                'initial_position': 44444,
+                'final_position': 'GRU'
+            }
+
+            response = test_client.post(self.url_route_add, data=json.dumps(data))
+            assert response.status_code == 400
+
+        def should_return_400_if_final_position_is_not_str(test_client):
+            data = {
+                'weight': 30,
+                'initial_position': 'GRU',
+                'final_position': 333.0
+            }
+
+            response = test_client.post(self.url_route_add, data=json.dumps(data))
+            assert response.status_code == 400
+
+        def should_return_400_if_weight_is_not_int(test_client):
+            data = {
+                'weight': 'LLL',
+                'initial_position': 'CDG',
+                'final_position': 'GRU'
+            }
+
+            response = test_client.post(self.url_route_add, data=json.dumps(data))
+            assert response.status_code == 400
+
+        def should_return_400_if_weight_is_smaller_than_1(test_client):
+            data = {
+                'weight': 0,
+                'initial_position': 'CDG',
+                'final_position': 'GRU'
+            }
+
+            response = test_client.post(self.url_route_add, data=json.dumps(data))
+            assert response.status_code == 400
+
         should_add_new_line_to_routes_file(test_client)
+        should_return_400_if_initial_position_is_not_str(test_client)
+        should_return_400_if_final_position_is_not_str(test_client)
+        should_return_400_if_weight_is_not_int(test_client)
+        should_return_400_if_weight_is_smaller_than_1(test_client)
+
 
     def test_find_route_endpoint(self, test_client):
         def should_return_expected_route_in_expected_format(test_client):

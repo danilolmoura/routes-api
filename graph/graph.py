@@ -206,7 +206,10 @@ def get_best_route_price(graph, initial_node, final_node):
     """
     result = dirjkstra(graph, initial_node)
 
-    route_value = result[final_node]
+    route_cost = result[final_node]
+
+    if route_cost == float('inf'):
+        return route_cost
 
     route_path = []
     last_path = final_node
@@ -215,6 +218,6 @@ def get_best_route_price(graph, initial_node, final_node):
         last_path  = graph.nodes[last_path].previous
 
     route_path = ' - '.join(route_path[::-1])
-    route_path += ' > ${}'.format(route_value)
+    route_path += ' > ${}'.format(route_cost)
 
     return route_path

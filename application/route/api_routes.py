@@ -21,6 +21,14 @@ def find():
     final_position = request.args['final_position']
     
     g = graph.create_graph(FILE_PATH)
+    if not g.nodes.get(initial_position, False):
+        return 'Initial position does not exist: {}'.format(initial_position), 400
+    if not g.nodes.get(final_position, False):
+        return 'Final position does not exist: {}'.format(final_position), 400
+
     best_route_price = graph.get_best_route_price(g, initial_position, final_position)
+
+    if best_route_price == float('inf'):
+        return "It is not possible to go from {} to {}".format(initial_position, final_position)
 
     return jsonify(best_route_price)

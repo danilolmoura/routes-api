@@ -8,8 +8,10 @@ bp = Blueprint('route', __name__)
 
 @bp.route('/add', methods=['POST'])
 def add():
-    return jsonify({})
+    data = json.loads(request.data)
+    file_handler.add_line(data['initial_position'], data['final_position'], data['weight'])
 
+    return jsonify(True)
 
 @bp.route('/find', methods=['GET'])
 def find():

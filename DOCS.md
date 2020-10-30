@@ -37,6 +37,7 @@ GET /route/find?initial_position=CDG&final_position=GRU
 Na resposta, será retornado o melhor caminho encontrado pela API:
 ```json
 HTTP Response 200
+
 "GRU - BRC - SCL - ORL - CDG > $40"
 ```
 
@@ -45,18 +46,21 @@ Ou, retornará um dos casos abaixo:
 Exceção caso a `initial_position` não exista como posição no arquivo:
 ```json
 HTTP Response 400
+
 "Initial position does not exist: LLL"
 ```
 
 Exceção caso a `final_position` não exista como posição no arquivo:
 ```json
 HTTP Response 400
+
 "Final position does not exist: LLL"
 ```
 
 Caso não seja possível chegar da `initial_positon` até a `final_position`, a resposta será no formato abaixo:
 ```json
 HTTP Response 200
+
 "It is not possible to go from CDG to GRU"
 ```
 
@@ -72,6 +76,7 @@ Através deste recurso é possível criar um novo caminho entre os lugares:
 
 ```json
 POST /route/add
+
 {
 	"initial_position": "GRU",
 	"final_position": "SSA",
@@ -82,6 +87,7 @@ POST /route/add
 Na resposta, será retornado um valor booleano `true` em caso de sucesso:
 ```json
 HTTP Response 200
+
 true
 ```
 
@@ -90,17 +96,20 @@ Ou, retornará um dos casos abaixo:
 Exceção caso a `initial_position` não seja uma `string`:
 ```json
 HTTP Response 400
+
 "Invalid initial_position format, expected string"
 ```
 
 Exceção caso a `final_position` não seja uma `string`:
 ```json
 HTTP Response 400
+
 "Invalid final_position format, expected string"
 ```
 
 Exceção caso o `weight` não seja seja um `int`, maior que `0`:
 ```json
 HTTP Response 400
+
 "Invalid weight format, expected int bigger than 0"
 ```

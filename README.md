@@ -8,7 +8,6 @@
    * [Interface CLI](#interface-cli)
    * [Interface REST](#interface-rest)
      * [API Documentação](#api-documentação)
-   * [References](#references)
 
 # Introdução
 
@@ -39,13 +38,15 @@ O melhor preço é da rota 4 logo, o output da consulta deve ser AAA - BBB - SSS
 
 ## Resolução
 
-Para a resolução do problema foi utilizada a implementação da estrutura de dados grafo, onde cada local representa um vertice desse grafo, os caminhos entre os locais representam as arestas direcionadas, e o preço das passagens representam os pesos das arestas.
+Para a resolução do problema foi utilizada a implementação da estrutura de dados grafo, onde cada local representa um vertice desse grafo, os caminhos entre os locais representam as arestas direcionadas, e o preço das passagens representa o peso de cada aresta.
 
 A implementação do grafo direcionado com peso nas arestas foi implementado inicialmente com lista de adjacencias, com o objetivo de facilitar a busca, e em seguida, para facilitar o acesso aos vértices do grafo, a implementação foi enriquecida com o uso de dicionários do python.
 
+![grafo-direcionado](https://www.ime.usp.br/~pf/algoritmos_para_grafos/aulas/figs/iou-graph-10-nodes-and-20-edges.png)
+
 Dada a estrutura e a implementação, a realização busca do caminho mais barato se deu através da implemetação do algoritmo de Dirjkstra, que encontra o caminho mais barato em termos de peso total das arestas que compõem o caminho.
 
-![dirjkstra](https://pt.wikipedia.org/wiki/Algoritmo_de_Dijkstra#/media/Ficheiro:Dijkstra_Animation.gif)
+![dirjkstra](https://upload.wikimedia.org/wikipedia/commons/5/57/Dijkstra_Animation.gif)
 
 # Configurando o ambiente local
 
@@ -71,8 +72,7 @@ Os logs de execução da aplicação poderão ser visualizados através dos coma
 
 A inicialização do teste através da interface CLI se dará executando o comando abaixo, na linha de comando, na pasta do projeto. O primeiro argumento é o o diretório com o arquivo de rotas inicial:
 
-    docker ps # para listar os containers ativos e pegar CONTAINER_ID
-    docker exec -it 855be38d0a9e python app_cli.py check-route -f files/input-routes.csv
+    docker exec -it <CONTAINER_ID> python app_cli.py check-route -f files/input-routes.csv
 
 E então a interface abaixo aparecerá. Nessa nova interface, a melhor rota poderá ser buscada digitando a origem e destino no formato "DE-PARA"
 
@@ -91,14 +91,3 @@ A interface poderá ser acessada em http://127.0.0.1:5000/
 ## API Documentação
 
 A documentação da API pode ser acessada [clicando aqui](/DOCS.md)
-
-# References
-
-* [Docker](https://www.docker.com/get-started)
-* [Flask](http://flask.palletsprojects.com/en/1.1.x/)
-* [SQLAlchemy](https://www.sqlalchemy.org/)
-* [GeoAlchemy2](https://geoalchemy-2.readthedocs.io/en/latest/)
-
-
-
-

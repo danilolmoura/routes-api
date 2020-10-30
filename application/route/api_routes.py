@@ -3,7 +3,9 @@ from flask import Blueprint, request
 from flask import jsonify
 
 from application.file import file_handler
+from graph import graph
 
+FILE_PATH = 'files/input-routes.csv'
 bp = Blueprint('route', __name__)
 
 @bp.route('/add', methods=['POST'])
@@ -15,5 +17,10 @@ def add():
 
 @bp.route('/find', methods=['GET'])
 def find():
+    initial_position = request.args['initial_position']
+    final_position = request.args['final_position']
+    
+    g = graph.create_graph(FILE_PATH)
+    best_route_price = graph.get_best_route_price(g, initial_position, final_position)
 
-    return jsonify({})
+    return jsonify(best_route_price)

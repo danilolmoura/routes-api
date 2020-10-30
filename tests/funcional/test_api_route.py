@@ -1,6 +1,10 @@
 import json
 import pdb
 
+from graph import graph
+
+FILE_PATH = 'files/input-routes.csv'
+
 class TestRouteResource():
     url_route_add = '/route/add'
     url_route_find = '/route/find'
@@ -35,3 +39,20 @@ class TestRouteResource():
             assert last_line == '{},{},{}'.format(data['initial_position'], data['final_position'], data['weight'])
 
         should_add_new_line_to_routes_file(test_client)
+
+    def test_find_route_endpoint(self, test_client):
+        def should_return_expected_route_in_expected_format(test_client):
+            data = {
+                'initial_position': 'GRU',
+                'final_position': 'CDG'
+            }
+
+            response = test_client.get(self.url_route_find, query_string=data)
+            res_data = json.loads(response.data)
+
+            g = graph.create_graph(FILE_PATH)
+            best_route_price = graph.get_best_route_price(g, data['initial_position'], data['final_position'])
+
+            assert best_route_price == res_data
+
+        should_return_expected_route_in_expected_format(test_client)

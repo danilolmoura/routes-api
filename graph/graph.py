@@ -40,11 +40,10 @@ def create_graph(file_path):
     """    
     graph = Graph()
 
-    labels = []
-    f = open(file_path)
-    lines = f.readlines()
-    f.close()
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
 
+    labels = []
     for line in lines:
         line_items = line.replace('\n', '').split(',')
 
@@ -123,7 +122,7 @@ def relax_edge(graph, distances, predecessors, initial_node, final_node):
             graph.nodes[final_node].previous = initial_node
 
 
-def open_exists(open_node):
+def exist_open_node(open_node):
     """[Check if exists some open node]
 
     Args:
@@ -179,7 +178,7 @@ def dirjkstra(graph, initial_node):
     for i in graph.nodes.keys():
         open_node[i] = True
 
-    while open_exists(open_node):
+    while exist_open_node(open_node):
         initial_node = smallest_distancee(graph, open_node, distances)
         if not initial_node:
             break

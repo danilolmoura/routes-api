@@ -11,7 +11,21 @@ bp = Blueprint('route', __name__)
 @bp.route('/add', methods=['POST'])
 def add():
     data = json.loads(request.data)
-    file_handler.add_line(data['initial_position'], data['final_position'], data['weight'])
+
+    initial_position = data['initial_position']
+    final_position = data['final_position']
+    weight = data['weight']
+
+    if not isinstance(initial_position, str):
+        return 'Invalid initial_position format, expected string', 400
+
+    if not isinstance(final_position, str):
+        return 'Invalid final_position format, expected string', 400
+
+    if not isinstance(weight, int) or weight < 1:
+        return 'Invalid weight format, expected int bigger than 0', 400
+
+    file_handler.add_line(initial_position, final_position, weight)
 
     return jsonify(True)
 
